@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Unifilar interactivo y Basis of Design para una microrred híbrida aislable.">
+  <title>Arquitectura y Basis of Design · Academia de operación en isla</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="site-shell">
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Módulo 02 · Arquitectura y BoD</p>
+        <h1>Una isla empieza por sus fronteras</h1>
+        <p class="lede">El unifilar define quién puede formar la referencia, qué potencia llega a las cargas y qué datos deben existir antes de diseñar controles, protecciones o pruebas.</p>
+      </div>
+      <div class="header-meta">
+        <strong>Explorador conceptual <span class="evidence-tag">E</span></strong>
+        Valores editables;<br>
+        topología de proyecto <span class="evidence-tag">P</span>
+      </div>
+    </header>
+
+    <section class="control-panel" aria-labelledby="architecture-controls">
+      <h2 id="architecture-controls" class="sr-only">Configuración del unifilar</h2>
+      <div class="control-row">
+        <div class="field">
+          <label for="operating-mode">Estado operativo</label>
+          <select id="operating-mode">
+            <option value="connected">Conectada al sistema</option>
+            <option value="islanded">PCC abierto · modo isla</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="topology">Acoplamiento</label>
+          <select id="topology">
+            <option value="ac-coupled">AC-coupled</option>
+            <option value="dc-coupled">DC-coupled conceptual</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="architecture-load"><span>Carga total</span><output id="architecture-load-value" for="architecture-load">6,0 MW</output></label>
+          <input id="architecture-load" type="range" min="2" max="15" step="0.5" value="6">
+        </div>
+        <div class="field">
+          <label for="architecture-renewable"><span>ERNC disponible</span><output id="architecture-renewable-value" for="architecture-renewable">5,0 MW</output></label>
+          <input id="architecture-renewable" type="range" min="0" max="12" step="0.5" value="5">
+        </div>
+        <label class="check-field" for="bess-available"><input id="bess-available" type="checkbox" checked> BESS GFM disponible</label>
+        <label class="check-field" for="grounding-available"><input id="grounding-available" type="checkbox" checked> Referencia de tierra local</label>
+        <button class="btn btn-primary" id="apply-architecture" type="button">Aplicar escenario</button>
+      </div>
+    </section>
+
+    <section class="metric-row" aria-label="Resultados de arquitectura">
+      <div class="metric"><span class="metric-label">Referencia V/f</span><strong class="metric-value" id="reference-source">Red</strong></div>
+      <div class="metric"><span class="metric-label">Carga servida</span><strong class="metric-value" id="served-load">6,0 MW</strong></div>
+      <div class="metric"><span class="metric-label">Referencia de tierra</span><strong class="metric-value" id="ground-source">PCC/red</strong></div>
+    </section>
+
+    <figure class="visual-stage" aria-labelledby="architecture-caption" data-model-class="conceptual" data-evidence-type="E">
+      <svg id="architecture-svg" viewBox="0 0 980 430" role="img" aria-labelledby="architecture-title architecture-desc">
+        <title id="architecture-title">Unifilar funcional de una microrred híbrida</title>
+        <desc id="architecture-desc">Red, PCC, barra AC, BESS GFM, generación renovable GFL, cargas y referencia de tierra.</desc>
+
+        <line class="unifilar-line" x1="105" y1="205" x2="850" y2="205"></line>
+        <line id="flow-grid" class="power-flow" x1="120" y1="205" x2="380" y2="205"></line>
+        <line id="flow-load" class="power-flow" x1="540" y1="205" x2="835" y2="205"></line>
+        <line id="flow-renewable" class="power-flow" x1="460" y1="90" x2="460" y2="185"></line>
+        <line id="flow-bess" class="power-flow" x1="610" y1="325" x2="610" y2="225"></line>
+
+        <line class="unifilar-branch" x1="460" y1="205" x2="460" y2="90"></line>
+        <line class="unifilar-branch" x1="610" y1="205" x2="610" y2="325"></line>
+        <line class="unifilar-branch" x1="720" y1="205" x2="720" y2="325"></line>
+
+        <rect id="node-grid" class="unifilar-node" x="30" y="160" width="120" height="90" rx="14"></rect>
+        <text class="plot-label" x="90" y="194" text-anchor="middle">Red externa</text>
+        <text class="axis-label" x="90" y="219" text-anchor="middle">fuente V/f</text>
+
+        <circle id="node-pcc" class="unifilar-node" cx="285" cy="205" r="42"></circle>
+        <line id="breaker-blade" class="breaker-blade" x1="264" y1="205" x2="304" y2="205"></line>
+        <text class="plot-label" x="285" y="270" text-anchor="middle">52-PCC</text>
+
+        <rect id="node-bus" class="unifilar-node" x="385" y="173" width="150" height="64" rx="12"></rect>
+        <text class="plot-label" x="460" y="198" text-anchor="middle">Barra crítica AC</text>
+        <text id="bus-label" class="axis-label" x="460" y="220" text-anchor="middle">13,8 kV</text>
+
+        <rect id="node-renewable" class="unifilar-node" x="385" y="24" width="150" height="66" rx="12"></rect>
+        <text class="plot-label" x="460" y="51" text-anchor="middle">PV + eólica GFL</text>
+        <text id="renewable-label" class="axis-label" x="460" y="74" text-anchor="middle">5,0 MW</text>
+
+        <rect id="node-bess" class="unifilar-node" x="535" y="325" width="150" height="70" rx="12"></rect>
+        <text class="plot-label" x="610" y="353" text-anchor="middle">BESS / PCS GFM</text>
+        <text id="bess-label" class="axis-label" x="610" y="377" text-anchor="middle">5,0 MW · 24 MWh</text>
+
+        <rect id="node-load" class="unifilar-node" x="835" y="160" width="120" height="90" rx="14"></rect>
+        <text class="plot-label" x="895" y="194" text-anchor="middle">Cargas</text>
+        <text id="load-label" class="axis-label" x="895" y="219" text-anchor="middle">6,0 MW</text>
+
+        <rect id="node-grounding" class="unifilar-node" x="658" y="325" width="124" height="70" rx="12"></rect>
+        <text class="plot-label" x="720" y="353" text-anchor="middle">Grounding</text>
+        <text class="axis-label" x="720" y="377" text-anchor="middle">zig-zag / NGR</text>
+
+        <text id="topology-label" class="axis-label" x="460" y="278" text-anchor="middle">Acoplamiento AC</text>
+      </svg>
+      <figcaption id="architecture-caption" class="legend">
+        <span><span class="swatch swatch-frequency"></span>flujo activo</span>
+        <span>La ERNC GFL aporta potencia, pero no sustituye automáticamente la referencia V/f.</span>
+      </figcaption>
+      <p class="status-line" id="architecture-status" aria-live="polite"><strong>Lectura:</strong> la red externa forma la referencia y el BESS queda disponible para soporte.</p>
+    </figure>
+
+    <div class="component-grid" role="group" aria-label="Revisar datos por componente">
+      <button class="btn" type="button" data-component="grid" aria-pressed="true">Red/PCC</button>
+      <button class="btn" type="button" data-component="bus" aria-pressed="false">Barra/BOP</button>
+      <button class="btn" type="button" data-component="renewable" aria-pressed="false">PV/eólica</button>
+      <button class="btn" type="button" data-component="bess" aria-pressed="false">BESS/PCS</button>
+      <button class="btn" type="button" data-component="load" aria-pressed="false">Cargas</button>
+      <button class="btn" type="button" data-component="grounding" aria-pressed="false">Grounding</button>
+    </div>
+    <p class="detail-line" id="component-detail"><strong>Red/PCC:</strong> unifilar, equivalente de red, SCR/ESCR, fallas, X/R, tensión, frecuencia, recierre y condiciones de reconexión. <span class="evidence-tag">P</span></p>
+
+    <div class="content-grid">
+      <section>
+        <h2>Frontera eléctrica</h2>
+        <p><span class="evidence-tag">P</span> Niveles de tensión, impedancias, transformadores, interruptores y cargas deben venir del propietario/EPC. El dibujo no reemplaza planos IFC o as-built.</p>
+      </section>
+      <section>
+        <h2>Frontera de control</h2>
+        <p><span class="evidence-tag">R</span> El diseño debe asignar claramente referencia V/f, control P/Q, límites, fallback y ownership de consignas entre PCS, PPC y EMS.</p>
+      </section>
+      <section>
+        <h2>Frontera de evidencia</h2>
+        <p><span class="evidence-tag">P</span> El caso solo se vuelve ejecutable cuando cada activo tiene modelo, versión, responsable, rango válido y prueba de aceptación.</p>
+      </section>
+    </div>
+
+    <details>
+      <summary>Supuestos y fuentes</summary>
+      <p>El cálculo de carga servida es una comprobación estática de potencia. No modela flujo reactivo, tensión, estabilidad, pérdidas, protecciones, degradación ni dinámica de convertidores.</p>
+      <ul>
+        <li><a href="../../Checklist_Data_Room_y_OEM_Modo_Isla.md">Checklist de data room y solicitudes OEM</a>.</li>
+        <li><a href="../../Plan_Investigacion_Microrredes_Hibridas_Modo_Isla.md">Plan maestro, Frentes 0 y 1</a>.</li>
+        <li><a href="../../Markdown/07_Control_Planificacion_y_Operacion/2026_DOE_Integrated_Models_Tools_Microgrid_Planning_Design_Operations.md">DOE 2026 — planificación, diseño y operación integrados</a>.</li>
+      </ul>
+    </details>
+
+    <nav class="page-nav" aria-label="Navegación entre módulos">
+      <a class="btn" href="fundamentos-gfm-gfl.html">← Fundamentos GFM/GFL</a>
+      <a class="btn btn-primary" href="dimensionamiento-bess.html">Dimensionamiento BESS →</a>
+    </nav>
+  </main>
+
+  <script src="shared.js"></script>
+  <script src="arquitectura.js"></script>
+</body>
+</html>
